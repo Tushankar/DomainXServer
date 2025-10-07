@@ -5,6 +5,7 @@
 ### What Was Added:
 
 #### 1. **Password Reset Controller** (`passwordResetController.js`)
+
 - ✅ Request body logging
 - ✅ Email search logging
 - ✅ User found/not found status
@@ -14,6 +15,7 @@
 - ✅ Detailed email error logging with full stack trace
 
 #### 2. **Email Service** (`emailService.js`)
+
 - ✅ Transporter creation logging
 - ✅ Email credentials validation
 - ✅ Reset URL logging
@@ -22,6 +24,7 @@
 - ✅ Complete error details (name, message, code, response)
 
 #### 3. **Test Endpoint**
+
 - ✅ Added `/api/auth/test-email-config` to verify environment variables
 
 ---
@@ -29,17 +32,21 @@
 ## 🚀 How to Debug:
 
 ### Step 1: Test Email Configuration
+
 Open your browser or Postman and visit:
+
 ```
-http://localhost:5000/api/auth/test-email-config
+https://domainxserver.onrender.com/api/auth/test-email-config
 ```
 
 This will show you:
+
 - Is EMAIL_USER set?
 - Is EMAIL_PASSWORD set?
 - What is FRONTEND_URL?
 
 ### Step 2: Check Server Console
+
 When you submit the forgot password form, your server console will show:
 
 ```
@@ -76,6 +83,7 @@ Response: 250 2.0.0 OK
 ```
 
 ### Step 3: If Email Fails
+
 The console will show detailed error information:
 
 ```
@@ -96,9 +104,11 @@ Full error: { ... full error object ... }
 ## 🔧 Common Issues & Solutions:
 
 ### Issue 1: "Invalid login" or "Username and Password not accepted"
+
 **Cause:** Gmail App Password is incorrect or not set
 
 **Solution:**
+
 1. Go to Google Account → Security
 2. Enable 2-Factor Authentication
 3. Go to App Passwords
@@ -110,17 +120,21 @@ Full error: { ... full error object ... }
    (use the 16-character password WITHOUT spaces)
 
 ### Issue 2: "User not found"
+
 **Cause:** The email address doesn't exist in the database
 
 **Solution:**
+
 1. Check your admin user in MongoDB
 2. Make sure the email matches exactly
 3. Try logging in first to verify the account exists
 
 ### Issue 3: "EMAIL_USER not set" or "EMAIL_PASSWORD not set"
+
 **Cause:** Environment variables are not loaded
 
 **Solution:**
+
 1. Check your `.env` file in the server directory
 2. Make sure it has:
    ```
@@ -131,9 +145,11 @@ Full error: { ... full error object ... }
 3. Restart the server after updating `.env`
 
 ### Issue 4: "Connection timeout" or "ETIMEDOUT"
+
 **Cause:** Firewall or network blocking Gmail SMTP
 
 **Solution:**
+
 1. Check if port 587 or 465 is blocked
 2. Try using port 465 with secure: true:
    ```javascript
@@ -147,6 +163,7 @@ Full error: { ... full error object ... }
 ## 📧 Email Configuration Details:
 
 Current settings in `.env`:
+
 ```env
 EMAIL_USER=tirtho.kyptronix@gmail.com
 EMAIL_PASSWORD=kozi ozmn wtzn cuyg
@@ -161,6 +178,7 @@ In the code, it should work with or without spaces, but Gmail expects it without
 ## 🧪 Testing Steps:
 
 1. **Start the server:**
+
    ```bash
    cd server
    npm start
@@ -169,8 +187,9 @@ In the code, it should work with or without spaces, but Gmail expects it without
 2. **Check the console** for startup messages
 
 3. **Visit test endpoint:**
+
    ```
-   http://localhost:5000/api/auth/test-email-config
+   https://domainxserver.onrender.com/api/auth/test-email-config
    ```
 
 4. **Try forgot password** with a valid admin email
