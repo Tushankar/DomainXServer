@@ -2,13 +2,20 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
+import path from "path";
+import { fileURLToPath } from "url";
 import connectDB from "./config/database.js";
 import contentRoutes from "./routes/contentRoutes.js";
 import dataAnalyticsRoutes from "./routes/dataAnalyticsRoutes.js";
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
 import passwordResetRoutes from "./routes/passwordResetRoutes.js";
+import formConfigRoutes from "./routes/formConfigRoutes.js";
 import errorHandler from "./middleware/errorHandler.js";
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config();
@@ -45,6 +52,9 @@ app.use(
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
+// Serve static files (for uploaded images)
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+
 // Request logger middleware
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
@@ -57,6 +67,7 @@ app.use("/api/analytics", dataAnalyticsRoutes);
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/auth", passwordResetRoutes);
+app.use("/api", formConfigRoutes);
 
 // Health check route
 app.get("/api/health", (req, res) => {
