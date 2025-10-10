@@ -2,22 +2,26 @@ import mongoose from "mongoose";
 
 const dataAnalyticsSchema = new mongoose.Schema(
   {
-    // Step 1: Personal Information
+    // DYNAMIC FORM DATA - Stores all field values dynamically
+    formData: {
+      type: mongoose.Schema.Types.Mixed,
+      required: [true, "Form data is required"],
+      default: {}
+    },
+
+    // LEGACY FIELDS - Kept for backward compatibility (optional)
     firstName: {
       type: String,
-      required: [true, "First name is required"],
       trim: true,
       maxlength: [50, "First name cannot exceed 50 characters"],
     },
     lastName: {
       type: String,
-      required: [true, "Last name is required"],
       trim: true,
       maxlength: [50, "Last name cannot exceed 50 characters"],
     },
     email: {
       type: String,
-      required: [true, "Email is required"],
       trim: true,
       lowercase: true,
       match: [
@@ -27,11 +31,8 @@ const dataAnalyticsSchema = new mongoose.Schema(
     },
     selectedOption: {
       type: String,
-      required: [true, "User type selection is required"],
-      enum: ["solo", "team"],
+      enum: ["solo", "team", ""],
     },
-
-    // Step 2: Domain Business Details
     domainName: {
       type: String,
       trim: true,
@@ -50,19 +51,10 @@ const dataAnalyticsSchema = new mongoose.Schema(
     businessType: {
       type: String,
       enum: {
-        values: ["buyer", "seller"],
+        values: ["buyer", "seller", ""],
         message: "businessType must be either 'buyer' or 'seller'"
-      },
-      validate: {
-        validator: function(v) {
-          // Allow undefined/null but not empty strings
-          return v === undefined || v === null || ["buyer", "seller"].includes(v);
-        },
-        message: "businessType must be either 'buyer' or 'seller' or not provided"
       }
     },
-
-    // Step 3: Business Goals & Challenges
     monthlyVolume: {
       type: String,
       trim: true,
@@ -81,15 +73,8 @@ const dataAnalyticsSchema = new mongoose.Schema(
     primaryGoal: {
       type: String,
       enum: {
-        values: ["profit", "growth"],
+        values: ["profit", "growth", ""],
         message: "primaryGoal must be either 'profit' or 'growth'"
-      },
-      validate: {
-        validator: function(v) {
-          // Allow undefined/null but not empty strings
-          return v === undefined || v === null || ["profit", "growth"].includes(v);
-        },
-        message: "primaryGoal must be either 'profit' or 'growth' or not provided"
       }
     },
     currentChallenges: {
@@ -105,7 +90,6 @@ const dataAnalyticsSchema = new mongoose.Schema(
       type: Number,
       default: 1,
       min: 1,
-      max: 3,
     },
     isCompleted: {
       type: Boolean,
@@ -126,6 +110,7 @@ const dataAnalyticsSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    strict: false, // Allow dynamic fields
   }
 );
 
@@ -137,10 +122,13 @@ dataAnalyticsSchema.index({ primaryGoal: 1 });
 
 // Virtual for full name
 dataAnalyticsSchema.virtual("fullName").get(function () {
-  return `${this.firstName} ${this.lastName}`;
+  // Try to get from formData first, then fallback to legacy fields
+  const firstName = this.formData?.firstName || this.firstName;
+  const lastName = this.formData?.lastName || this.lastName;
+  return firstName && lastName ? `${firstName} ${lastName}` : "";
 });
 
-// Pre-save middleware to set completion status and clean up empty enum values
+// Pre-save middleware to set completion status
 dataAnalyticsSchema.pre("save", function (next) {
   // Clean up empty enum values by setting them to undefined
   if (this.businessType === '') {
@@ -150,10 +138,13 @@ dataAnalyticsSchema.pre("save", function (next) {
     this.primaryGoal = undefined;
   }
   
-  // Set completion status
-  if (this.currentStep === 3 && this.primaryGoal && this.monthlyVolume && this.targetRevenue && this.yearsExperience) {
-    this.isCompleted = true;
+  // Auto-set completion status based on current step
+  // In dynamic forms, completion is determined by reaching the last step
+  if (this.isCompleted !== true && this.currentStep > 1) {
+    // If currentStep is provided and greater than 1, form is in progress
+    // If all steps are completed, isCompleted should be set by the frontend
   }
+  
   next();
 });
 

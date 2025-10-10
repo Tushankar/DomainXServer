@@ -6,6 +6,7 @@ import DataAnalytics from "../models/DataAnalytics.js";
 export const createAnalyticsSubmission = async (req, res) => {
   try {
     const {
+      formData, // NEW: Dynamic form data object
       firstName,
       lastName,
       email,
@@ -20,52 +21,85 @@ export const createAnalyticsSubmission = async (req, res) => {
       primaryGoal,
       currentChallenges,
       currentStep,
+      isCompleted,
     } = req.body;
+
+    console.log("📥 Received submission data:", {
+      hasFormData: !!formData,
+      formDataKeys: formData ? Object.keys(formData) : [],
+      currentStep,
+      isCompleted
+    });
 
     // Get client IP and user agent
     const ipAddress = req.ip || req.connection.remoteAddress || req.socket.remoteAddress;
     const userAgent = req.get("User-Agent");
 
+    // Extract email from formData or legacy field
+    const submissionEmail = formData?.email || email;
+
     // Check if submission with this email already exists
-    const existingSubmission = await DataAnalytics.findOne({ email });
-    
-    if (existingSubmission) {
-      return res.status(400).json({
-        success: false,
-        message: "Submission with this email already exists",
-        data: { id: existingSubmission._id }
+    if (submissionEmail) {
+      const existingSubmission = await DataAnalytics.findOne({ 
+        $or: [
+          { email: submissionEmail },
+          { 'formData.email': submissionEmail }
+        ]
       });
+      
+      if (existingSubmission) {
+        console.log("⚠️ Email already exists, returning existing submission ID");
+        return res.status(200).json({
+          success: true,
+          message: "Submission with this email already exists",
+          data: { id: existingSubmission._id },
+          existing: true
+        });
+      }
     }
 
-    // Prepare clean data object (remove empty strings for enum fields)
-    const cleanData = {
-      firstName,
-      lastName,
-      email,
-      selectedOption,
-      domainName,
-      domainPrice,
-      domainCategory,
-      monthlyVolume,
-      targetRevenue,
-      yearsExperience,
-      currentChallenges,
+    // Prepare submission data - prioritize formData (dynamic) over legacy fields
+    const submissionData = {
+      formData: formData || {}, // Store all dynamic field data
       currentStep: currentStep || 1,
+      isCompleted: isCompleted || false,
       ipAddress,
       userAgent,
+      submissionSource: "web_form",
     };
 
+    // Add legacy fields for backward compatibility (if provided)
+    if (firstName) submissionData.firstName = firstName;
+    if (lastName) submissionData.lastName = lastName;
+    if (email) submissionData.email = email;
+    if (selectedOption) submissionData.selectedOption = selectedOption;
+    if (domainName) submissionData.domainName = domainName;
+    if (domainPrice) submissionData.domainPrice = domainPrice;
+    if (domainCategory) submissionData.domainCategory = domainCategory;
+    if (monthlyVolume) submissionData.monthlyVolume = monthlyVolume;
+    if (targetRevenue) submissionData.targetRevenue = targetRevenue;
+    if (yearsExperience) submissionData.yearsExperience = yearsExperience;
+    if (currentChallenges) submissionData.currentChallenges = currentChallenges;
+    
     // Only add enum fields if they have valid values
     if (businessType && ['buyer', 'seller'].includes(businessType)) {
-      cleanData.businessType = businessType;
+      submissionData.businessType = businessType;
     }
-    
     if (primaryGoal && ['profit', 'growth'].includes(primaryGoal)) {
-      cleanData.primaryGoal = primaryGoal;
+      submissionData.primaryGoal = primaryGoal;
     }
 
+    console.log("💾 Creating submission with data:", {
+      hasFormData: !!submissionData.formData,
+      formDataSize: Object.keys(submissionData.formData || {}).length,
+      currentStep: submissionData.currentStep,
+      isCompleted: submissionData.isCompleted
+    });
+
     // Create new submission
-    const analyticsData = await DataAnalytics.create(cleanData);
+    const analyticsData = await DataAnalytics.create(submissionData);
+
+    console.log("✅ Submission created successfully:", analyticsData._id);
 
     res.status(201).json({
       success: true,
@@ -73,11 +107,12 @@ export const createAnalyticsSubmission = async (req, res) => {
       data: analyticsData,
     });
   } catch (error) {
-    console.error("Error creating analytics submission:", error);
+    console.error("❌ Error creating analytics submission:", error);
     
     // Handle validation errors
     if (error.name === "ValidationError") {
       const validationErrors = Object.values(error.errors).map(err => err.message);
+      console.error("Validation errors:", validationErrors);
       return res.status(400).json({
         success: false,
         message: "Validation failed",
@@ -101,6 +136,12 @@ export const updateAnalyticsSubmission = async (req, res) => {
     const { id } = req.params;
     const updates = { ...req.body };
 
+    console.log("📝 Updating submission:", id, {
+      hasFormData: !!updates.formData,
+      currentStep: updates.currentStep,
+      isCompleted: updates.isCompleted
+    });
+
     // Clean up enum fields - remove if empty string
     if (updates.businessType === '') {
       delete updates.businessType;
@@ -109,7 +150,7 @@ export const updateAnalyticsSubmission = async (req, res) => {
       delete updates.primaryGoal;
     }
 
-    // Calculate completion status
+    // Get current submission
     const currentSubmission = await DataAnalytics.findById(id);
     if (!currentSubmission) {
       return res.status(404).json({
@@ -118,16 +159,18 @@ export const updateAnalyticsSubmission = async (req, res) => {
       });
     }
 
-    // Merge current data with updates to check completion
-    const mergedData = { ...currentSubmission.toObject(), ...updates };
-    
-    // Check if form should be marked as completed
-    if (mergedData.currentStep === 3 && 
-        mergedData.primaryGoal && 
-        mergedData.monthlyVolume && 
-        mergedData.targetRevenue && 
-        mergedData.yearsExperience) {
-      updates.isCompleted = true;
+    // If formData is provided, merge it with existing formData
+    if (updates.formData) {
+      updates.formData = {
+        ...(currentSubmission.formData || {}),
+        ...updates.formData
+      };
+      console.log("🔄 Merged formData:", Object.keys(updates.formData));
+    }
+
+    // Update completion status if provided
+    if (updates.isCompleted !== undefined) {
+      console.log("✓ Setting isCompleted:", updates.isCompleted);
     }
 
     // Find and update the submission
@@ -136,9 +179,11 @@ export const updateAnalyticsSubmission = async (req, res) => {
       updates,
       {
         new: true,
-        runValidators: true,
+        runValidators: false, // Disable validators for updates to allow partial data
       }
     );
+
+    console.log("✅ Submission updated successfully");
 
     res.status(200).json({
       success: true,
@@ -146,7 +191,7 @@ export const updateAnalyticsSubmission = async (req, res) => {
       data: analyticsData,
     });
   } catch (error) {
-    console.error("Error updating analytics submission:", error);
+    console.error("❌ Error updating analytics submission:", error);
     
     // Handle validation errors
     if (error.name === "ValidationError") {
