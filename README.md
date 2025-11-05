@@ -182,7 +182,7 @@ You can test the API using:
 Example curl command:
 
 ```bash
-curl https://domainxserver.onrender.com/api/content
+curl http://localhost:5000/api/content
 ```
 
 ## 📝 Environment Variables

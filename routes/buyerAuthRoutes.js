@@ -8,6 +8,11 @@ import {
   logoutBuyer,
   changeBuyerPassword,
 } from "../controllers/buyerAuthController.js";
+import {
+  forgotBuyerPassword,
+  resetBuyerPassword,
+  verifyBuyerResetToken,
+} from "../controllers/buyerPasswordResetController.js";
 import { authenticateBuyer } from "../middleware/buyerAuth.js";
 
 const router = express.Router();
@@ -41,24 +46,54 @@ const loginValidation = [
     .isEmail()
     .normalizeEmail()
     .withMessage("Please provide a valid email"),
-  body("password")
-    .notEmpty()
-    .withMessage("Password is required"),
+  body("password").notEmpty().withMessage("Password is required"),
 ];
 
 // Public routes
 router.post("/register", registerValidation, registerBuyer);
 router.post("/login", loginValidation, loginBuyer);
 
+// Password reset routes (public)
+router.post(
+  "/forgot-password",
+  [
+    body("email")
+      .isEmail()
+      .normalizeEmail()
+      .withMessage("Please provide a valid email"),
+  ],
+  forgotBuyerPassword
+);
+
+router.post(
+  "/reset-password",
+  [
+    body("token").notEmpty().withMessage("Reset token is required"),
+    body("newPassword")
+      .isLength({ min: 6 })
+      .withMessage("New password must be at least 6 characters long"),
+  ],
+  resetBuyerPassword
+);
+
+router.get("/verify-reset-token/:token", verifyBuyerResetToken);
+
 // Protected routes
 router.get("/profile", authenticateBuyer, getBuyerProfile);
 router.put("/profile", authenticateBuyer, updateBuyerProfile);
 router.post("/logout", authenticateBuyer, logoutBuyer);
-router.put("/change-password", authenticateBuyer, [
-  body("currentPassword").notEmpty().withMessage("Current password is required"),
-  body("newPassword")
-    .isLength({ min: 6 })
-    .withMessage("New password must be at least 6 characters long"),
-], changeBuyerPassword);
+router.put(
+  "/change-password",
+  authenticateBuyer,
+  [
+    body("currentPassword")
+      .notEmpty()
+      .withMessage("Current password is required"),
+    body("newPassword")
+      .isLength({ min: 6 })
+      .withMessage("New password must be at least 6 characters long"),
+  ],
+  changeBuyerPassword
+);
 
 export default router;

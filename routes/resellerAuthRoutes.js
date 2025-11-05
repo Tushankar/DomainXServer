@@ -8,6 +8,11 @@ import {
   logoutReseller,
   changeResellerPassword,
 } from "../controllers/resellerAuthController.js";
+import {
+  forgotResellerPassword,
+  resetResellerPassword,
+  verifyResellerResetToken,
+} from "../controllers/resellerPasswordResetController.js";
 import { authenticateReseller } from "../middleware/resellerAuth.js";
 
 const router = express.Router();
@@ -45,24 +50,54 @@ const loginValidation = [
     .isEmail()
     .normalizeEmail()
     .withMessage("Please provide a valid email"),
-  body("password")
-    .notEmpty()
-    .withMessage("Password is required"),
+  body("password").notEmpty().withMessage("Password is required"),
 ];
 
 // Public routes
 router.post("/register", registerValidation, registerReseller);
 router.post("/login", loginValidation, loginReseller);
 
+// Password reset routes (public)
+router.post(
+  "/forgot-password",
+  [
+    body("email")
+      .isEmail()
+      .normalizeEmail()
+      .withMessage("Please provide a valid email"),
+  ],
+  forgotResellerPassword
+);
+
+router.post(
+  "/reset-password",
+  [
+    body("token").notEmpty().withMessage("Reset token is required"),
+    body("newPassword")
+      .isLength({ min: 6 })
+      .withMessage("New password must be at least 6 characters long"),
+  ],
+  resetResellerPassword
+);
+
+router.get("/verify-reset-token/:token", verifyResellerResetToken);
+
 // Protected routes
 router.get("/profile", authenticateReseller, getResellerProfile);
 router.put("/profile", authenticateReseller, updateResellerProfile);
 router.post("/logout", authenticateReseller, logoutReseller);
-router.put("/change-password", authenticateReseller, [
-  body("currentPassword").notEmpty().withMessage("Current password is required"),
-  body("newPassword")
-    .isLength({ min: 6 })
-    .withMessage("New password must be at least 6 characters long"),
-], changeResellerPassword);
+router.put(
+  "/change-password",
+  authenticateReseller,
+  [
+    body("currentPassword")
+      .notEmpty()
+      .withMessage("Current password is required"),
+    body("newPassword")
+      .isLength({ min: 6 })
+      .withMessage("New password must be at least 6 characters long"),
+  ],
+  changeResellerPassword
+);
 
 export default router;

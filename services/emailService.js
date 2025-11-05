@@ -5,11 +5,16 @@ const createTransporter = () => {
   console.log("\n=== CREATING EMAIL TRANSPORTER ===");
   console.log("Service: Gmail");
   console.log("Email User:", process.env.EMAIL_USER || "NOT SET");
-  console.log("Email Password:", process.env.EMAIL_PASSWORD ? "SET (length: " + process.env.EMAIL_PASSWORD.length + ")" : "NOT SET");
-  
+  console.log(
+    "Email Password:",
+    process.env.EMAIL_PASSWORD
+      ? "SET (length: " + process.env.EMAIL_PASSWORD.length + ")"
+      : "NOT SET"
+  );
+
   // For development, use Gmail or a test SMTP service
   // For production, use a proper email service like SendGrid, AWS SES, etc.
-  
+
   const transporter = createTransport({
     service: "gmail", // You can change this to your email provider
     auth: {
@@ -17,29 +22,52 @@ const createTransporter = () => {
       pass: process.env.EMAIL_PASSWORD || "your-app-password", // Use App Password for Gmail
     },
   });
-  
+
   console.log("✅ Transporter created");
   return transporter;
 };
 
 // Send password reset email
-export const sendPasswordResetEmail = async (email, resetToken) => {
+export const sendPasswordResetEmail = async (
+  email,
+  resetToken,
+  userType = "admin"
+) => {
   console.log("\n=== SENDING PASSWORD RESET EMAIL ===");
   console.log("To:", email);
+  console.log("User Type:", userType);
   console.log("Token (first 10 chars):", resetToken.substring(0, 10));
-  
+
   try {
     const transporter = createTransporter();
-    
+
     // Frontend URL (adjust based on your deployment)
     const frontendURL = process.env.FRONTEND_URL || "http://localhost:5173";
-    const resetURL = `${frontendURL}/reset-password?token=${resetToken}`;
+    const resetURL =
+      userType === "reseller"
+        ? `${frontendURL}/reset-password?token=${resetToken}&type=reseller`
+        : userType === "buyer"
+        ? `${frontendURL}/reset-password?token=${resetToken}&type=buyer`
+        : `${frontendURL}/reset-password?token=${resetToken}`;
     console.log("Reset URL:", resetURL);
+
+    const portalName =
+      userType === "reseller"
+        ? "Reseller Portal"
+        : userType === "buyer"
+        ? "Buyer Portal"
+        : "Admin Portal";
+    const loginPath =
+      userType === "reseller"
+        ? "/login/reseller"
+        : userType === "buyer"
+        ? "/login/buyer"
+        : "/admin/login";
 
     const mailOptions = {
       from: process.env.EMAIL_USER || "DomainX <noreply@domainx.com>",
       to: email,
-      subject: "Password Reset Request - DomainX",
+      subject: `Password Reset Request - DomainX ${portalName}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -58,7 +86,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
                   <tr>
                     <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; text-align: center;">
                       <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">DomainX</h1>
-                      <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px;">Admin Portal</p>
+                      <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px;">${portalName}</p>
                     </td>
                   </tr>
 
@@ -68,7 +96,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
                       <h2 style="margin: 0 0 20px 0; color: #2c3e50; font-size: 24px; font-weight: 600;">Reset Your Password</h2>
                       
                       <p style="margin: 0 0 20px 0; color: #6c757d; font-size: 16px; line-height: 1.6;">
-                        We received a request to reset your admin account password. Click the button below to create a new password:
+                        We received a request to reset your ${userType} account password. Click the button below to create a new password:
                       </p>
 
                       <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
@@ -120,9 +148,9 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
         </html>
       `,
       text: `
-        Reset Your Password - DomainX Admin Portal
+        Reset Your Password - DomainX ${portalName}
         
-        We received a request to reset your admin account password.
+        We received a request to reset your ${userType} account password.
         
         Click the link below to create a new password:
         ${resetURL}
@@ -211,7 +239,10 @@ export const sendPasswordChangeConfirmation = async (email, name) => {
                       <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
                         <tr>
                           <td align="center">
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin-login" style="display: inline-block; padding: 14px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;">
+                            <a href="${
+                              process.env.FRONTEND_URL ||
+                              "http://localhost:5173"
+                            }/admin-login" style="display: inline-block; padding: 14px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;">
                               Go to Admin Login
                             </a>
                           </td>
