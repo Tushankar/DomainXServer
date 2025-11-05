@@ -64,7 +64,7 @@ export const registerAdmin = async (req, res) => {
     });
   } catch (error) {
     console.error("Error registering admin:", error);
-    
+
     // Handle duplicate email error
     if (error.code === 11000) {
       return res.status(400).json({
@@ -111,7 +111,8 @@ export const loginAdmin = async (req, res) => {
     if (admin.isLocked) {
       return res.status(423).json({
         success: false,
-        message: "Account is temporarily locked due to too many failed login attempts. Please try again later.",
+        message:
+          "Account is temporarily locked due to too many failed login attempts. Please try again later.",
       });
     }
 
@@ -120,7 +121,7 @@ export const loginAdmin = async (req, res) => {
     if (!isPasswordValid) {
       // Increment login attempts
       await admin.incLoginAttempts();
-      
+
       return res.status(401).json({
         success: false,
         message: "Invalid email or password",
@@ -228,7 +229,10 @@ export const updateAdminProfile = async (req, res) => {
 
     // Check if email is being changed to an existing email
     if (email && email !== admin.email) {
-      const existingAdmin = await AdminUser.findOne({ email, _id: { $ne: admin._id } });
+      const existingAdmin = await AdminUser.findOne({
+        email,
+        _id: { $ne: admin._id },
+      });
       if (existingAdmin) {
         return res.status(400).json({
           success: false,
@@ -326,7 +330,7 @@ export const logoutAdmin = async (req, res) => {
   try {
     // In a simple JWT setup, logout is handled client-side by removing the token
     // For enhanced security, you might implement token blacklisting here
-    
+
     res.status(200).json({
       success: true,
       message: "Logout successful",
@@ -382,30 +386,39 @@ export const verifyAdminToken = async (req, res) => {
 export const getAllUsers = async (req, res) => {
   try {
     // Get all buyers
-    const buyers = await Buyer.find({}, {
-      password: 0,
-      __v: 0
-    }).sort({ createdAt: -1 });
+    const buyers = await Buyer.find(
+      {},
+      {
+        password: 0,
+        __v: 0,
+      }
+    ).sort({ createdAt: -1 });
 
     // Get all resellers/sellers
-    const sellers = await Reseller.find({}, {
-      password: 0,
-      __v: 0
-    }).sort({ createdAt: -1 });
+    const sellers = await Reseller.find(
+      {},
+      {
+        password: 0,
+        __v: 0,
+      }
+    ).sort({ createdAt: -1 });
 
     // Get all admins
-    const admins = await AdminUser.find({}, {
-      password: 0,
-      loginAttempts: 0,
-      lockUntil: 0,
-      __v: 0
-    }).sort({ createdAt: -1 });
+    const admins = await AdminUser.find(
+      {},
+      {
+        password: 0,
+        loginAttempts: 0,
+        lockUntil: 0,
+        __v: 0,
+      }
+    ).sort({ createdAt: -1 });
 
     // Combine and format users
     const allUsers = [
-      ...buyers.map(user => ({ ...user.toObject(), role: 'buyer' })),
-      ...sellers.map(user => ({ ...user.toObject(), role: 'seller' })),
-      ...admins.map(user => ({ ...user.toObject(), role: 'admin' }))
+      ...buyers.map((user) => ({ ...user.toObject(), role: "buyer" })),
+      ...sellers.map((user) => ({ ...user.toObject(), role: "seller" })),
+      ...admins.map((user) => ({ ...user.toObject(), role: "admin" })),
     ];
 
     res.status(200).json({
@@ -417,8 +430,8 @@ export const getAllUsers = async (req, res) => {
         breakdown: {
           buyers: buyers.length,
           sellers: sellers.length,
-          admins: admins.length
-        }
+          admins: admins.length,
+        },
       },
     });
   } catch (error) {
@@ -441,16 +454,16 @@ export const updateUser = async (req, res) => {
 
     // Find user in all collections
     let user = await Buyer.findById(id);
-    let userType = 'buyer';
+    let userType = "buyer";
 
     if (!user) {
       user = await Reseller.findById(id);
-      userType = 'seller';
+      userType = "seller";
     }
 
     if (!user) {
       user = await AdminUser.findById(id);
-      userType = 'admin';
+      userType = "admin";
     }
 
     if (!user) {
@@ -463,8 +476,8 @@ export const updateUser = async (req, res) => {
     // Update user fields
     if (name) user.name = name;
     if (email) user.email = email;
-    if (role && userType !== 'admin') user.role = role; // Don't allow changing admin roles
-    if (typeof isActive === 'boolean') user.isActive = isActive;
+    if (role && userType !== "admin") user.role = role; // Don't allow changing admin roles
+    if (typeof isActive === "boolean") user.isActive = isActive;
 
     await user.save();
 
@@ -476,8 +489,8 @@ export const updateUser = async (req, res) => {
           ...user.toObject(),
           role: userType,
           password: undefined,
-          __v: undefined
-        }
+          __v: undefined,
+        },
       },
     });
   } catch (error) {
@@ -508,16 +521,16 @@ export const deleteUser = async (req, res) => {
 
     // Find and delete user from appropriate collection
     let deletedUser = await Buyer.findByIdAndDelete(id);
-    let userType = 'buyer';
+    let userType = "buyer";
 
     if (!deletedUser) {
       deletedUser = await Reseller.findByIdAndDelete(id);
-      userType = 'seller';
+      userType = "seller";
     }
 
     if (!deletedUser) {
       deletedUser = await AdminUser.findByIdAndDelete(id);
-      userType = 'admin';
+      userType = "admin";
     }
 
     if (!deletedUser) {
@@ -533,8 +546,8 @@ export const deleteUser = async (req, res) => {
       data: {
         user: {
           ...deletedUser.toObject(),
-          role: userType
-        }
+          role: userType,
+        },
       },
     });
   } catch (error) {
@@ -573,10 +586,10 @@ export const approveUser = async (req, res) => {
       data: {
         user: {
           ...user.toObject(),
-          role: 'seller',
+          role: "seller",
           password: undefined,
-          __v: undefined
-        }
+          __v: undefined,
+        },
       },
     });
   } catch (error) {
@@ -589,4 +602,58 @@ export const approveUser = async (req, res) => {
   }
 };
 
+// @desc    Toggle user status (active/inactive)
+// @route   PATCH /api/admin/users/:id/status
+// @access  Private (Admin only)
+export const toggleUserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
 
+    // Find user in all collections
+    let user = await Buyer.findById(id);
+    let userType = "buyer";
+
+    if (!user) {
+      user = await Reseller.findById(id);
+      userType = "seller";
+    }
+
+    if (!user) {
+      user = await AdminUser.findById(id);
+      userType = "admin";
+    }
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Toggle the isActive status
+    user.isActive = !user.isActive;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: `User ${
+        user.isActive ? "activated" : "deactivated"
+      } successfully`,
+      data: {
+        user: {
+          ...user.toObject(),
+          role: userType,
+          password: undefined,
+          __v: undefined,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error toggling user status:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error toggling user status",
+      error: error.message,
+    });
+  }
+};

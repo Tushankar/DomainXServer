@@ -13,7 +13,10 @@ import {
   toggleUserStatus,
   approveUser,
 } from "../controllers/adminAuthController.js";
-import { authenticateAdmin, requireSuperAdmin } from "../middleware/adminAuth.js";
+import {
+  authenticateAdmin,
+  requireSuperAdmin,
+} from "../middleware/adminAuth.js";
 import {
   validateAdminRegistration,
   validateAdminLogin,
