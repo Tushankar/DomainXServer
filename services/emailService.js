@@ -3,28 +3,65 @@ import { createTransport } from "nodemailer";
 // Email configuration
 const createTransporter = () => {
   console.log("\n=== CREATING EMAIL TRANSPORTER ===");
-  console.log("Service: Gmail");
-  console.log("Email User:", process.env.EMAIL_USER || "NOT SET");
-  console.log(
-    "Email Password:",
-    process.env.EMAIL_PASSWORD
-      ? "SET (length: " + process.env.EMAIL_PASSWORD.length + ")"
-      : "NOT SET"
-  );
 
-  // For development, use Gmail or a test SMTP service
-  // For production, use a proper email service like SendGrid, AWS SES, etc.
+  // Check if we're in production (Render)
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER;
 
-  const transporter = createTransport({
-    service: "gmail", // You can change this to your email provider
-    auth: {
-      user: process.env.EMAIL_USER || "your-email@gmail.com",
-      pass: process.env.EMAIL_PASSWORD || "your-app-password", // Use App Password for Gmail
-    },
-  });
+  if (isProduction) {
+    console.log("Environment: Production (Render)");
+    console.log("Using SendGrid or Gmail with enhanced config");
 
-  console.log("✅ Transporter created");
-  return transporter;
+    // For production, prefer SendGrid if API key is available
+    if (process.env.SENDGRID_API_KEY) {
+      console.log("Using SendGrid for production");
+      const sgMail = require('@sendgrid/mail');
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+      return sgMail;
+    }
+
+    // Fallback to Gmail with enhanced configuration for production
+    console.log("Using Gmail with production config");
+    console.log("Email User:", process.env.EMAIL_USER || "NOT SET");
+    console.log("Email Password:", process.env.EMAIL_PASSWORD ? "SET (length: " + process.env.EMAIL_PASSWORD.length + ")" : "NOT SET");
+
+    const transporter = createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD, // Must be Gmail App Password
+      },
+      // Enhanced configuration for production
+      pool: true, // Use pooled connections
+      maxConnections: 1, // Limit concurrent connections
+      maxMessages: 5, // Limit messages per connection
+      // Add timeout and retry settings
+      tls: {
+        rejectUnauthorized: false // For some hosting environments
+      },
+      debug: true, // Enable debug logging
+      logger: true // Enable logger
+    });
+
+    console.log("✅ Production transporter created");
+    return transporter;
+  } else {
+    // Development configuration
+    console.log("Environment: Development");
+    console.log("Service: Gmail");
+    console.log("Email User:", process.env.EMAIL_USER || "NOT SET");
+    console.log("Email Password:", process.env.EMAIL_PASSWORD ? "SET (length: " + process.env.EMAIL_PASSWORD.length + ")" : "NOT SET");
+
+    const transporter = createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER || "your-email@gmail.com",
+        pass: process.env.EMAIL_PASSWORD || "your-app-password",
+      },
+    });
+
+    console.log("✅ Development transporter created");
+    return transporter;
+  }
 };
 
 // Send password reset email
@@ -38,9 +75,10 @@ export const sendPasswordResetEmail = async (
   console.log("User Type:", userType);
   console.log("Token (first 10 chars):", resetToken.substring(0, 10));
 
-  try {
-    const transporter = createTransporter();
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER;
+  const transporter = createTransporter();
 
+  try {
     // Frontend URL (adjust based on your deployment)
     const frontendURL = process.env.FRONTEND_URL || "http://localhost:5173";
     const resetURL =
@@ -57,12 +95,6 @@ export const sendPasswordResetEmail = async (
         : userType === "buyer"
         ? "Buyer Portal"
         : "Admin Portal";
-    const loginPath =
-      userType === "reseller"
-        ? "/login/reseller"
-        : userType === "buyer"
-        ? "/login/buyer"
-        : "/admin/login";
 
     const mailOptions = {
       from: process.env.EMAIL_USER || "DomainX <noreply@domainx.com>",
@@ -81,7 +113,7 @@ export const sendPasswordResetEmail = async (
             <tr>
               <td align="center">
                 <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                  
+
                   <!-- Header -->
                   <tr>
                     <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; text-align: center;">
@@ -94,7 +126,7 @@ export const sendPasswordResetEmail = async (
                   <tr>
                     <td style="padding: 40px;">
                       <h2 style="margin: 0 0 20px 0; color: #2c3e50; font-size: 24px; font-weight: 600;">Reset Your Password</h2>
-                      
+
                       <p style="margin: 0 0 20px 0; color: #6c757d; font-size: 16px; line-height: 1.6;">
                         We received a request to reset your ${userType} account password. Click the button below to create a new password:
                       </p>
@@ -149,26 +181,45 @@ export const sendPasswordResetEmail = async (
       `,
       text: `
         Reset Your Password - DomainX ${portalName}
-        
+
         We received a request to reset your ${userType} account password.
-        
+
         Click the link below to create a new password:
         ${resetURL}
-        
+
         This link will expire in 1 hour for security reasons.
-        
+
         If you didn't request a password reset, please ignore this email.
-        
+
         © ${new Date().getFullYear()} DomainX. All rights reserved.
       `,
     };
 
     console.log("📤 Sending email...");
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Password reset email sent successfully!");
-    console.log("Message ID:", info.messageId);
-    console.log("Response:", info.response);
-    return { success: true, messageId: info.messageId };
+
+    let result;
+    if (isProduction && process.env.SENDGRID_API_KEY) {
+      // SendGrid implementation
+      result = await transporter.send(mailOptions);
+      console.log("✅ Password reset email sent via SendGrid!");
+      console.log("Message ID:", result[0]?.headers?.['x-message-id'] || 'N/A');
+    } else {
+      // Nodemailer implementation with timeout
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Email sending timeout after 30 seconds')), 30000);
+      });
+
+      result = await Promise.race([
+        transporter.sendMail(mailOptions),
+        timeoutPromise
+      ]);
+
+      console.log("✅ Password reset email sent successfully!");
+      console.log("Message ID:", result.messageId);
+      console.log("Response:", result.response);
+    }
+
+    return { success: true, messageId: result.messageId || result[0]?.headers?.['x-message-id'] };
   } catch (error) {
     console.error("\n=== EMAIL SENDING ERROR ===");
     console.error("Error type:", error.constructor.name);
@@ -183,6 +234,13 @@ export const sendPasswordResetEmail = async (
     }
     console.error("Full error object:", JSON.stringify(error, null, 2));
     console.error("========================\n");
+
+    // For production, don't throw error - log it and return success to avoid blocking user flow
+    if (isProduction) {
+      console.log("⚠️ Production mode: Email failed but not throwing error to preserve user experience");
+      return { success: false, error: error.message, fallback: true };
+    }
+
     throw error;
   }
 };

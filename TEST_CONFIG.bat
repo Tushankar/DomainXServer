@@ -33,10 +33,10 @@ echo ========================================
 echo [Step 3] Checking if server is running...
 echo ========================================
 echo.
-curl -s http://localhost:5000/api/health >nul 2>&1
+curl -s https://domainxserver.onrender.com/api/health >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
     echo ✅ Server is running on port 5000
-    curl http://localhost:5000/api/health
+    curl https://domainxserver.onrender.com/api/health
 ) else (
     echo ❌ Server is NOT running
     echo.
