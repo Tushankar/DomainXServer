@@ -11,6 +11,7 @@ import {
   updateUser,
   deleteUser,
   toggleUserStatus,
+  approveUser,
 } from "../controllers/adminAuthController.js";
 import { authenticateAdmin, requireSuperAdmin } from "../middleware/adminAuth.js";
 import {
@@ -49,5 +50,6 @@ router.get("/users", getAllUsers);
 router.put("/users/:id", updateUser);
 router.delete("/users/:id", deleteUser);
 router.patch("/users/:id/status", toggleUserStatus);
+router.patch("/users/:id/approve", approveUser);
 
 export default router;

@@ -547,55 +547,43 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-// @desc    Toggle user active status
-// @route   PATCH /api/admin/users/:id/status
+// @desc    Approve reseller
+// @route   PATCH /api/admin/users/:id/approve
 // @access  Private (Admin only)
-export const toggleUserStatus = async (req, res) => {
+export const approveUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { isActive } = req.body;
 
-    // Find user in all collections
-    let user = await Buyer.findById(id);
-    let userType = 'buyer';
-
-    if (!user) {
-      user = await Reseller.findById(id);
-      userType = 'seller';
-    }
-
-    if (!user) {
-      user = await AdminUser.findById(id);
-      userType = 'admin';
-    }
+    // Find user - only resellers can be approved
+    const user = await Reseller.findById(id);
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message: "Reseller not found",
       });
     }
 
-    user.isActive = isActive;
+    user.isApproved = true;
     await user.save();
 
     res.status(200).json({
       success: true,
-      message: `User ${isActive ? 'activated' : 'deactivated'} successfully`,
+      message: "Reseller approved successfully",
       data: {
         user: {
           ...user.toObject(),
-          role: userType,
+          role: 'seller',
           password: undefined,
           __v: undefined
         }
       },
     });
   } catch (error) {
-    console.error("Error toggling user status:", error);
+    console.error("Error approving reseller:", error);
     res.status(500).json({
       success: false,
-      message: "Error updating user status",
+      message: "Error approving reseller",
       error: error.message,
     });
   }
