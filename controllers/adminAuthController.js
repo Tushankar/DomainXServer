@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import AdminUser from "../models/AdminUser.js";
+import Buyer from "../models/Buyer.js";
+import Reseller from "../models/Reseller.js";
 
 // Generate JWT Token
 const generateToken = (userId) => {
@@ -373,3 +375,230 @@ export const verifyAdminToken = async (req, res) => {
     });
   }
 };
+
+// @desc    Get all users (Buyers, Sellers, Admins)
+// @route   GET /api/admin/users
+// @access  Private (Admin only)
+export const getAllUsers = async (req, res) => {
+  try {
+    // Get all buyers
+    const buyers = await Buyer.find({}, {
+      password: 0,
+      __v: 0
+    }).sort({ createdAt: -1 });
+
+    // Get all resellers/sellers
+    const sellers = await Reseller.find({}, {
+      password: 0,
+      __v: 0
+    }).sort({ createdAt: -1 });
+
+    // Get all admins
+    const admins = await AdminUser.find({}, {
+      password: 0,
+      loginAttempts: 0,
+      lockUntil: 0,
+      __v: 0
+    }).sort({ createdAt: -1 });
+
+    // Combine and format users
+    const allUsers = [
+      ...buyers.map(user => ({ ...user.toObject(), role: 'buyer' })),
+      ...sellers.map(user => ({ ...user.toObject(), role: 'seller' })),
+      ...admins.map(user => ({ ...user.toObject(), role: 'admin' }))
+    ];
+
+    res.status(200).json({
+      success: true,
+      message: "Users retrieved successfully",
+      data: {
+        users: allUsers,
+        total: allUsers.length,
+        breakdown: {
+          buyers: buyers.length,
+          sellers: sellers.length,
+          admins: admins.length
+        }
+      },
+    });
+  } catch (error) {
+    console.error("Error getting all users:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error getting users",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Update user
+// @route   PUT /api/admin/users/:id
+// @access  Private (Admin only)
+export const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, email, role, isActive } = req.body;
+
+    // Find user in all collections
+    let user = await Buyer.findById(id);
+    let userType = 'buyer';
+
+    if (!user) {
+      user = await Reseller.findById(id);
+      userType = 'seller';
+    }
+
+    if (!user) {
+      user = await AdminUser.findById(id);
+      userType = 'admin';
+    }
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Update user fields
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (role && userType !== 'admin') user.role = role; // Don't allow changing admin roles
+    if (typeof isActive === 'boolean') user.isActive = isActive;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: {
+        user: {
+          ...user.toObject(),
+          role: userType,
+          password: undefined,
+          __v: undefined
+        }
+      },
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+
+    // Handle duplicate email error
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already exists",
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Error updating user",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Delete user
+// @route   DELETE /api/admin/users/:id
+// @access  Private (Admin only)
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find and delete user from appropriate collection
+    let deletedUser = await Buyer.findByIdAndDelete(id);
+    let userType = 'buyer';
+
+    if (!deletedUser) {
+      deletedUser = await Reseller.findByIdAndDelete(id);
+      userType = 'seller';
+    }
+
+    if (!deletedUser) {
+      deletedUser = await AdminUser.findByIdAndDelete(id);
+      userType = 'admin';
+    }
+
+    if (!deletedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+      data: {
+        user: {
+          ...deletedUser.toObject(),
+          role: userType
+        }
+      },
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error deleting user",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Toggle user active status
+// @route   PATCH /api/admin/users/:id/status
+// @access  Private (Admin only)
+export const toggleUserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isActive } = req.body;
+
+    // Find user in all collections
+    let user = await Buyer.findById(id);
+    let userType = 'buyer';
+
+    if (!user) {
+      user = await Reseller.findById(id);
+      userType = 'seller';
+    }
+
+    if (!user) {
+      user = await AdminUser.findById(id);
+      userType = 'admin';
+    }
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    user.isActive = isActive;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: `User ${isActive ? 'activated' : 'deactivated'} successfully`,
+      data: {
+        user: {
+          ...user.toObject(),
+          role: userType,
+          password: undefined,
+          __v: undefined
+        }
+      },
+    });
+  } catch (error) {
+    console.error("Error toggling user status:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating user status",
+      error: error.message,
+    });
+  }
+};
+
+

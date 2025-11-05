@@ -262,7 +262,33 @@ export const sendPasswordChangeConfirmation = async (email, name) => {
   }
 };
 
+// Generic email sending function
+export const sendEmail = async (to, subject, html) => {
+  console.log("\n=== SENDING EMAIL ===");
+  console.log("To:", to);
+  console.log("Subject:", subject);
+
+  try {
+    const transporter = createTransporter();
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER || "DomainX <noreply@domainx.com>",
+      to: to,
+      subject: subject,
+      html: html,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Email sent successfully:", info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error("❌ Email sending failed:", error);
+    return { success: false, error: error.message };
+  }
+};
+
 export default {
   sendPasswordResetEmail,
   sendPasswordChangeConfirmation,
+  sendEmail,
 };

@@ -1,13 +1,17 @@
 import express from "express";
 import dotenv from "dotenv";
+// Force server restart for new routes
 import cors from "cors";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import connectDB from "./config/database.js";
 import contentRoutes from "./routes/contentRoutes.js";
 import dataAnalyticsRoutes from "./routes/dataAnalyticsRoutes.js";
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
+import buyerAuthRoutes from "./routes/buyerAuthRoutes.js";
+import resellerAuthRoutes from "./routes/resellerAuthRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
 import passwordResetRoutes from "./routes/passwordResetRoutes.js";
 import formConfigRoutes from "./routes/formConfigRoutes.js";
@@ -51,6 +55,7 @@ app.use(
 );
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+app.use(cookieParser());
 
 // Serve static files (for uploaded images)
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
@@ -65,6 +70,8 @@ app.use((req, res, next) => {
 app.use("/api/content", contentRoutes);
 app.use("/api/analytics", dataAnalyticsRoutes);
 app.use("/api/admin/auth", adminAuthRoutes);
+app.use("/api/buyer/auth", buyerAuthRoutes);
+app.use("/api/reseller/auth", resellerAuthRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/auth", passwordResetRoutes);
 app.use("/api", formConfigRoutes);
