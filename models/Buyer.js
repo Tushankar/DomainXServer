@@ -42,6 +42,10 @@ const buyerSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isApproved: {
+      type: Boolean,
+      default: true, // Buyers are approved by default unless admin deactivates them
+    },
     lastLogin: {
       type: Date,
     },
@@ -131,7 +135,7 @@ buyerSchema.methods.incLoginAttempts = function () {
   if (this.lockUntil && this.lockUntil < Date.now()) {
     return this.updateOne({
       $unset: { lockUntil: 1 },
-      $set: { loginAttempts: 1 }
+      $set: { loginAttempts: 1 },
     });
   }
 
@@ -150,7 +154,7 @@ buyerSchema.methods.incLoginAttempts = function () {
 buyerSchema.methods.resetLoginAttempts = function () {
   return this.updateOne({
     $unset: { loginAttempts: 1, lockUntil: 1 },
-    $set: { lastLogin: new Date() }
+    $set: { lastLogin: new Date() },
   });
 };
 

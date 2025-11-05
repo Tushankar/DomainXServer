@@ -177,6 +177,7 @@ export const registerReseller = async (req, res) => {
           businessType: reseller.businessType,
           isApproved: reseller.isApproved,
         },
+        token,
       },
     });
   } catch (error) {
