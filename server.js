@@ -15,6 +15,7 @@ import resellerAuthRoutes from "./routes/resellerAuthRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
 import passwordResetRoutes from "./routes/passwordResetRoutes.js";
 import formConfigRoutes from "./routes/formConfigRoutes.js";
+import * as formConfigController from "./controllers/formConfigController.js";
 import errorHandler from "./middleware/errorHandler.js";
 
 // Get __dirname equivalent in ES modules
@@ -58,7 +59,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser());
 
 // Serve static files (for uploaded images)
-app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));
 
 // Request logger middleware
 app.use((req, res, next) => {
@@ -75,6 +76,9 @@ app.use("/api/reseller/auth", resellerAuthRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/auth", passwordResetRoutes);
 app.use("/api", formConfigRoutes);
+
+// Public route for form config (without /api prefix for backward compatibility)
+app.get("/form-config", formConfigController.getFormConfig);
 
 // Health check route
 app.get("/api/health", (req, res) => {
@@ -105,6 +109,8 @@ app.get("/", (req, res) => {
       adminProfile: "/api/admin/auth/profile",
       blogs: "/api/blogs",
       blogById: "/api/blogs/:id",
+      formConfig: "/form-config",
+      formConfigAdmin: "/api/form-config",
     },
   });
 });
