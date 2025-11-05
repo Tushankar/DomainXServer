@@ -1,11 +1,13 @@
 import { createTransport } from "nodemailer";
+import sgMail from "@sendgrid/mail";
 
 // Email configuration
 const createTransporter = () => {
   console.log("\n=== CREATING EMAIL TRANSPORTER ===");
 
   // Check if we're in production (Render)
-  const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER;
+  const isProduction =
+    process.env.NODE_ENV === "production" || process.env.RENDER;
 
   if (isProduction) {
     console.log("Environment: Production (Render)");
@@ -14,7 +16,6 @@ const createTransporter = () => {
     // For production, prefer SendGrid if API key is available
     if (process.env.SENDGRID_API_KEY) {
       console.log("Using SendGrid for production");
-      const sgMail = require('@sendgrid/mail');
       sgMail.setApiKey(process.env.SENDGRID_API_KEY);
       return sgMail;
     }
@@ -22,7 +23,12 @@ const createTransporter = () => {
     // Fallback to Gmail with enhanced configuration for production
     console.log("Using Gmail with production config");
     console.log("Email User:", process.env.EMAIL_USER || "NOT SET");
-    console.log("Email Password:", process.env.EMAIL_PASSWORD ? "SET (length: " + process.env.EMAIL_PASSWORD.length + ")" : "NOT SET");
+    console.log(
+      "Email Password:",
+      process.env.EMAIL_PASSWORD
+        ? "SET (length: " + process.env.EMAIL_PASSWORD.length + ")"
+        : "NOT SET"
+    );
 
     const transporter = createTransport({
       service: "gmail",
@@ -36,10 +42,10 @@ const createTransporter = () => {
       maxMessages: 5, // Limit messages per connection
       // Add timeout and retry settings
       tls: {
-        rejectUnauthorized: false // For some hosting environments
+        rejectUnauthorized: false, // For some hosting environments
       },
       debug: true, // Enable debug logging
-      logger: true // Enable logger
+      logger: true, // Enable logger
     });
 
     console.log("✅ Production transporter created");
@@ -49,7 +55,12 @@ const createTransporter = () => {
     console.log("Environment: Development");
     console.log("Service: Gmail");
     console.log("Email User:", process.env.EMAIL_USER || "NOT SET");
-    console.log("Email Password:", process.env.EMAIL_PASSWORD ? "SET (length: " + process.env.EMAIL_PASSWORD.length + ")" : "NOT SET");
+    console.log(
+      "Email Password:",
+      process.env.EMAIL_PASSWORD
+        ? "SET (length: " + process.env.EMAIL_PASSWORD.length + ")"
+        : "NOT SET"
+    );
 
     const transporter = createTransport({
       service: "gmail",
@@ -75,7 +86,8 @@ export const sendPasswordResetEmail = async (
   console.log("User Type:", userType);
   console.log("Token (first 10 chars):", resetToken.substring(0, 10));
 
-  const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER;
+  const isProduction =
+    process.env.NODE_ENV === "production" || process.env.RENDER;
   const transporter = createTransporter();
 
   try {
@@ -97,7 +109,10 @@ export const sendPasswordResetEmail = async (
         : "Admin Portal";
 
     const mailOptions = {
-      from: process.env.EMAIL_USER || "DomainX <noreply@domainx.com>",
+      from:
+        process.env.SENDGRID_FROM_EMAIL ||
+        process.env.EMAIL_USER ||
+        "DomainX <noreply@domainx.com>",
       to: email,
       subject: `Password Reset Request - DomainX ${portalName}`,
       html: `
@@ -200,18 +215,35 @@ export const sendPasswordResetEmail = async (
     let result;
     if (isProduction && process.env.SENDGRID_API_KEY) {
       // SendGrid implementation
-      result = await transporter.send(mailOptions);
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+      // SendGrid expects slightly different format
+      const sendGridOptions = {
+        to: mailOptions.to,
+        from: {
+          email: process.env.SENDGRID_FROM_EMAIL || "noreply@domainx.com",
+          name: "DomainX",
+        },
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+        text: mailOptions.text,
+      };
+
+      result = await sgMail.send(sendGridOptions);
       console.log("✅ Password reset email sent via SendGrid!");
-      console.log("Message ID:", result[0]?.headers?.['x-message-id'] || 'N/A');
+      console.log("Message ID:", result[0]?.headers?.["x-message-id"] || "N/A");
     } else {
       // Nodemailer implementation with timeout
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Email sending timeout after 30 seconds')), 30000);
+        setTimeout(
+          () => reject(new Error("Email sending timeout after 30 seconds")),
+          30000
+        );
       });
 
       result = await Promise.race([
         transporter.sendMail(mailOptions),
-        timeoutPromise
+        timeoutPromise,
       ]);
 
       console.log("✅ Password reset email sent successfully!");
@@ -219,7 +251,10 @@ export const sendPasswordResetEmail = async (
       console.log("Response:", result.response);
     }
 
-    return { success: true, messageId: result.messageId || result[0]?.headers?.['x-message-id'] };
+    return {
+      success: true,
+      messageId: result.messageId || result[0]?.headers?.["x-message-id"],
+    };
   } catch (error) {
     console.error("\n=== EMAIL SENDING ERROR ===");
     console.error("Error type:", error.constructor.name);
@@ -237,7 +272,9 @@ export const sendPasswordResetEmail = async (
 
     // For production, don't throw error - log it and return success to avoid blocking user flow
     if (isProduction) {
-      console.log("⚠️ Production mode: Email failed but not throwing error to preserve user experience");
+      console.log(
+        "⚠️ Production mode: Email failed but not throwing error to preserve user experience"
+      );
       return { success: false, error: error.message, fallback: true };
     }
 
@@ -247,11 +284,15 @@ export const sendPasswordResetEmail = async (
 
 // Send password change confirmation email
 export const sendPasswordChangeConfirmation = async (email, name) => {
-  try {
-    const transporter = createTransporter();
+  const isProduction =
+    process.env.NODE_ENV === "production" || process.env.RENDER;
 
+  try {
     const mailOptions = {
-      from: process.env.EMAIL_USER || "DomainX <noreply@domainx.com>",
+      from:
+        process.env.SENDGRID_FROM_EMAIL ||
+        process.env.EMAIL_USER ||
+        "DomainX <noreply@domainx.com>",
       to: email,
       subject: "Password Changed Successfully - DomainX",
       html: `
@@ -341,9 +382,35 @@ export const sendPasswordChangeConfirmation = async (email, name) => {
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Password change confirmation email sent:", info.messageId);
-    return { success: true, messageId: info.messageId };
+    let result;
+    if (isProduction && process.env.SENDGRID_API_KEY) {
+      // SendGrid implementation
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+      const sendGridOptions = {
+        to: mailOptions.to,
+        from: {
+          email: process.env.SENDGRID_FROM_EMAIL || "noreply@domainx.com",
+          name: "DomainX",
+        },
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+        text: mailOptions.text,
+      };
+
+      result = await sgMail.send(sendGridOptions);
+      console.log("✅ Password change confirmation email sent via SendGrid!");
+    } else {
+      // Nodemailer implementation
+      const transporter = createTransporter();
+      result = await transporter.sendMail(mailOptions);
+      console.log("Password change confirmation email sent:", result.messageId);
+    }
+
+    return {
+      success: true,
+      messageId: result.messageId || result[0]?.headers?.["x-message-id"],
+    };
   } catch (error) {
     console.error("Error sending confirmation email:", error);
     // Don't throw error for confirmation email - it's not critical
@@ -357,19 +424,48 @@ export const sendEmail = async (to, subject, html) => {
   console.log("To:", to);
   console.log("Subject:", subject);
 
-  try {
-    const transporter = createTransporter();
+  const isProduction =
+    process.env.NODE_ENV === "production" || process.env.RENDER;
 
+  try {
     const mailOptions = {
-      from: process.env.EMAIL_USER || "DomainX <noreply@domainx.com>",
+      from:
+        process.env.SENDGRID_FROM_EMAIL ||
+        process.env.EMAIL_USER ||
+        "DomainX <noreply@domainx.com>",
       to: to,
       subject: subject,
       html: html,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Email sent successfully:", info.messageId);
-    return { success: true, messageId: info.messageId };
+    let result;
+    if (isProduction && process.env.SENDGRID_API_KEY) {
+      // SendGrid implementation
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+      const sendGridOptions = {
+        to: mailOptions.to,
+        from: {
+          email: process.env.SENDGRID_FROM_EMAIL || "noreply@domainx.com",
+          name: "DomainX",
+        },
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+      };
+
+      result = await sgMail.send(sendGridOptions);
+      console.log("✅ Email sent successfully via SendGrid!");
+    } else {
+      // Nodemailer implementation
+      const transporter = createTransporter();
+      result = await transporter.sendMail(mailOptions);
+      console.log("✅ Email sent successfully:", result.messageId);
+    }
+
+    return {
+      success: true,
+      messageId: result.messageId || result[0]?.headers?.["x-message-id"],
+    };
   } catch (error) {
     console.error("❌ Email sending failed:", error);
     return { success: false, error: error.message };
