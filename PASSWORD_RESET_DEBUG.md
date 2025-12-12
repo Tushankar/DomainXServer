@@ -36,7 +36,7 @@
 Open your browser or Postman and visit:
 
 ```
-https://domainxserver.onrender.com/api/auth/test-email-config
+http://localgost:5000/api/auth/test-email-config
 ```
 
 This will show you:
@@ -189,7 +189,7 @@ In the code, it should work with or without spaces, but Gmail expects it without
 3. **Visit test endpoint:**
 
    ```
-   https://domainxserver.onrender.com/api/auth/test-email-config
+   http://localgost:5000/api/auth/test-email-config
    ```
 
 4. **Try forgot password** with a valid admin email

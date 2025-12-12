@@ -49,7 +49,7 @@ export const getFormConfig = async (req, res) => {
           }
         ],
         branding: {
-          logo: 'domainX',
+          logo: ' Domainsxchange',
           primaryColor: '#3b82f6',
           buttonColor: '#9ca3af'
         },

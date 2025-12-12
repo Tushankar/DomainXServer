@@ -66,7 +66,7 @@ Without spaces: `koziozmnwtzncuyg`
 - Sign in again if prompted
 - Select:
   - App: **Mail**
-  - Device: **Other** (type "DomainX Server")
+  - Device: **Other** (type " Domainsxchange Server")
 - Click "Generate"
 
 #### 3. Copy the Password
@@ -118,7 +118,7 @@ node -e "require('dotenv').config(); console.log('Length:', process.env.EMAIL_PA
 
 ### ✅ Check App Password Exists:
 - Go to: https://myaccount.google.com/apppasswords
-- Should see "DomainX" or similar in the list
+- Should see " Domainsxchange" or similar in the list
 - If not, generate a new one
 
 ---

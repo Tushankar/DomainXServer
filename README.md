@@ -1,6 +1,6 @@
-# DomainX CMS Backend Server
+#  Domainsxchange CMS Backend Server
 
-A robust backend server with MVC architecture for managing DomainX CMS content using MongoDB.
+A robust backend server with MVC architecture for managing  Domainsxchange CMS content using MongoDB.
 
 ## 🏗️ Architecture
 
@@ -135,7 +135,7 @@ Returns server status and timestamp.
 
 ## 🗄️ Database
 
-- **Database Name**: `domainx_cms`
+- **Database Name**: ` Domainsxchange_cms`
 - **Collection**: `contents`
 - **Connection**: MongoDB Atlas
 
@@ -182,14 +182,14 @@ You can test the API using:
 Example curl command:
 
 ```bash
-curl https://domainxserver.onrender.com/api/content
+curl http://localgost:5000/api/content
 ```
 
 ## 📝 Environment Variables
 
 ```env
 PORT=5000
-MONGODB_URI=mongodb+srv://mondalsubarna29:Su12345@cluster0.1kmazke.mongodb.net/domainx_cms?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://mondalsubarna29:Su12345@cluster0.1kmazke.mongodb.net/ Domainsxchange_cms?retryWrites=true&w=majority
 NODE_ENV=development
 ```
 

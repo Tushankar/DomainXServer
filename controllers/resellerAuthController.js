@@ -37,7 +37,17 @@ export const registerReseller = async (req, res) => {
       });
     }
 
-    const { name, email, password, phone, company, businessType } = req.body;
+    const {
+      name,
+      username,
+      email,
+      password,
+      phone,
+      company,
+      businessId,
+      portfolioLink,
+      businessType,
+    } = req.body;
 
     // Check if reseller already exists
     const existingReseller = await Reseller.findOne({ email });
@@ -48,13 +58,27 @@ export const registerReseller = async (req, res) => {
       });
     }
 
+    // Check if username already exists (if provided)
+    if (username) {
+      const existingUsername = await Reseller.findOne({ username });
+      if (existingUsername) {
+        return res.status(400).json({
+          success: false,
+          message: "Username already taken",
+        });
+      }
+    }
+
     // Create new reseller
     const reseller = await Reseller.create({
       name,
+      username,
       email,
       password,
       phone,
       company,
+      businessId,
+      portfolioLink,
       businessType,
     });
 
@@ -66,14 +90,14 @@ export const registerReseller = async (req, res) => {
 
     // Send welcome email
     try {
-      const emailSubject = "Welcome to DomainX - Account Pending Approval";
+      const emailSubject = "Welcome to  Domainsxchange - Account Pending Approval";
       const emailHtml = `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Welcome to DomainX</title>
+          <title>Welcome to  Domainsxchange</title>
         </head>
         <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
           <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px;">
@@ -84,7 +108,7 @@ export const registerReseller = async (req, res) => {
                   <!-- Header -->
                   <tr>
                     <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; text-align: center;">
-                      <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">Welcome to DomainX</h1>
+                      <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">Welcome to  Domainsxchange</h1>
                       <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px;">Reseller Portal</p>
                     </td>
                   </tr>
@@ -97,7 +121,7 @@ export const registerReseller = async (req, res) => {
                       }!</h2>
 
                       <p style="margin: 0 0 20px 0; color: #6c757d; font-size: 16px; line-height: 1.6;">
-                        Thank you for registering with DomainX! Your reseller account has been created successfully.
+                        Thank you for registering with  Domainsxchange! Your reseller account has been created successfully.
                       </p>
 
                       <div style="margin: 30px 0; padding: 20px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 6px;">
@@ -128,7 +152,7 @@ export const registerReseller = async (req, res) => {
                               process.env.FRONTEND_URL ||
                               "http://localhost:5173"
                             }" style="display: inline-block; padding: 14px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600;">
-                              Visit DomainX
+                              Visit  Domainsxchange
                             </a>
                           </td>
                         </tr>
@@ -140,7 +164,7 @@ export const registerReseller = async (req, res) => {
                   <tr>
                     <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #dee2e6;">
                       <p style="margin: 0 0 10px 0; color: #6c757d; font-size: 14px;">
-                        © ${new Date().getFullYear()} DomainX. All rights reserved.
+                        © ${new Date().getFullYear()}  Domainsxchange. All rights reserved.
                       </p>
                       <p style="margin: 0; color: #9ca3af; font-size: 12px;">
                         This is an automated email. Please do not reply.
@@ -490,6 +514,38 @@ export const changeResellerPassword = async (req, res) => {
     });
   } catch (error) {
     console.error("Change reseller password error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+// @desc    Get public reseller info
+// @route   GET /api/reseller/auth/public/:id
+// @access  Public
+export const getResellerPublicInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const reseller = await Reseller.findById(id).select("name company");
+
+    if (!reseller) {
+      return res.status(404).json({
+        success: false,
+        message: "Reseller not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      reseller: {
+        name: reseller.name,
+        company: reseller.company,
+      },
+    });
+  } catch (error) {
+    console.error("Get reseller public info error:", error);
     res.status(500).json({
       success: false,
       message: "Server error",

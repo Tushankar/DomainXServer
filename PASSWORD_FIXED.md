@@ -43,7 +43,7 @@ Response: 250 2.0.0 OK
 - **Check inbox:** sahatushankar234@gmail.com
 - **Don't forget SPAM folder!**
 - **Email from:** tirtho.kyptronix@gmail.com
-- **Subject:** "Reset Your Password - DomainX Admin Portal"
+- **Subject:** "Reset Your Password -  Domainsxchange Admin Portal"
 
 ---
 
@@ -88,7 +88,7 @@ This sends a test email to verify Gmail is working.
 ### Generate New App Password:
 1. Go to: https://myaccount.google.com/apppasswords
 2. Sign in with: tirtho.kyptronix@gmail.com
-3. Select: Mail → Other → "DomainX"
+3. Select: Mail → Other → " Domainsxchange"
 4. Copy the 16-character password
 5. Update .env: `EMAIL_PASSWORD=newpasswordhere` (no spaces!)
 6. Restart server

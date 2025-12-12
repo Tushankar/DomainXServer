@@ -607,7 +607,7 @@ export const approveUser = async (req, res) => {
     // Send approval email
     try {
       const emailSubject =
-        "Account Approved - Welcome to DomainX Reseller Portal";
+        "Account Approved - Welcome to  Domainsxchange Reseller Portal";
       const emailHtml = `
         <!DOCTYPE html>
         <html>
@@ -626,7 +626,7 @@ export const approveUser = async (req, res) => {
                   <tr>
                     <td style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); padding: 40px; text-align: center;">
                       <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">✓ Account Approved</h1>
-                      <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px;">Welcome to DomainX</p>
+                      <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px;">Welcome to  Domainsxchange</p>
                     </td>
                   </tr>
 
@@ -638,7 +638,7 @@ export const approveUser = async (req, res) => {
                       }!</h2>
 
                       <p style="margin: 0 0 20px 0; color: #6c757d; font-size: 16px; line-height: 1.6;">
-                        Your DomainX reseller account has been approved by our admin team. You can now access all the features of our reseller portal.
+                        Your  Domainsxchange reseller account has been approved by our admin team. You can now access all the features of our reseller portal.
                       </p>
 
                       <div style="margin: 30px 0; padding: 20px; background-color: #d4edda; border-left: 4px solid #28a745; border-radius: 6px;">
@@ -682,7 +682,7 @@ export const approveUser = async (req, res) => {
                   <tr>
                     <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #dee2e6;">
                       <p style="margin: 0 0 10px 0; color: #6c757d; font-size: 14px;">
-                        © ${new Date().getFullYear()} DomainX. All rights reserved.
+                        © ${new Date().getFullYear()}  Domainsxchange. All rights reserved.
                       </p>
                       <p style="margin: 0; color: #9ca3af; font-size: 12px;">
                         This is an automated email. Please do not reply.

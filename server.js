@@ -15,6 +15,10 @@ import resellerAuthRoutes from "./routes/resellerAuthRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
 import passwordResetRoutes from "./routes/passwordResetRoutes.js";
 import formConfigRoutes from "./routes/formConfigRoutes.js";
+import domainRoutes from "./routes/domainRoutes.js";
+import purchaseRoutes from "./routes/purchaseRoutes.js";
+import dnsRoutes from "./routes/dnsRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 import * as formConfigController from "./controllers/formConfigController.js";
 import errorHandler from "./middleware/errorHandler.js";
 
@@ -39,7 +43,7 @@ app.use(
       if (!origin) return callback(null, true);
 
       const allowedOrigins = [
-        "https://domainx.netlify.app",
+        "https:// Domainsxchange.netlify.app",
         "http://localhost:5173",
         "http://localhost:3000", // in case they use a different port
         process.env.CLIENT_URL,
@@ -75,6 +79,11 @@ app.use("/api/buyer/auth", buyerAuthRoutes);
 app.use("/api/reseller/auth", resellerAuthRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/auth", passwordResetRoutes);
+app.use("/api/domains", domainRoutes);
+app.use("/api/wishlist", purchaseRoutes);
+app.use("/api/purchases", purchaseRoutes);
+app.use("/api/dns", dnsRoutes);
+app.use("/api/chat", chatRoutes);
 app.use("/api", formConfigRoutes);
 
 // Public route for form config (without /api prefix for backward compatibility)
@@ -92,7 +101,7 @@ app.get("/api/health", (req, res) => {
 // Root route
 app.get("/", (req, res) => {
   res.json({
-    message: "DomainX CMS Backend API",
+    message: " Domainsxchange CMS Backend API",
     version: "1.0.0",
     endpoints: {
       health: "/api/health",
@@ -109,6 +118,10 @@ app.get("/", (req, res) => {
       adminProfile: "/api/admin/auth/profile",
       blogs: "/api/blogs",
       blogById: "/api/blogs/:id",
+      domains: "/api/domains",
+      appraiseDomain: "/api/domains/appraise",
+      generateLeads: "/api/domains/leads",
+      getDomainInfo: "/api/domains/info",
       formConfig: "/form-config",
       formConfigAdmin: "/api/form-config",
     },

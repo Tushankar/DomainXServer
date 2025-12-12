@@ -112,9 +112,9 @@ export const sendPasswordResetEmail = async (
       from:
         process.env.SENDGRID_FROM_EMAIL ||
         process.env.EMAIL_USER ||
-        "DomainX <noreply@domainx.com>",
+        " Domainsxchange <noreply@ Domainsxchange.com>",
       to: email,
-      subject: `Password Reset Request - DomainX ${portalName}`,
+      subject: `Password Reset Request -  Domainsxchange ${portalName}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -132,7 +132,7 @@ export const sendPasswordResetEmail = async (
                   <!-- Header -->
                   <tr>
                     <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; text-align: center;">
-                      <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">DomainX</h1>
+                      <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;"> Domainsxchange</h1>
                       <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px;">${portalName}</p>
                     </td>
                   </tr>
@@ -179,7 +179,7 @@ export const sendPasswordResetEmail = async (
                   <tr>
                     <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #dee2e6;">
                       <p style="margin: 0 0 10px 0; color: #6c757d; font-size: 14px;">
-                        © ${new Date().getFullYear()} DomainX. All rights reserved.
+                        © ${new Date().getFullYear()}  Domainsxchange. All rights reserved.
                       </p>
                       <p style="margin: 0; color: #9ca3af; font-size: 12px;">
                         This is an automated email. Please do not reply.
@@ -195,7 +195,7 @@ export const sendPasswordResetEmail = async (
         </html>
       `,
       text: `
-        Reset Your Password - DomainX ${portalName}
+        Reset Your Password -  Domainsxchange ${portalName}
 
         We received a request to reset your ${userType} account password.
 
@@ -206,7 +206,7 @@ export const sendPasswordResetEmail = async (
 
         If you didn't request a password reset, please ignore this email.
 
-        © ${new Date().getFullYear()} DomainX. All rights reserved.
+        © ${new Date().getFullYear()}  Domainsxchange. All rights reserved.
       `,
     };
 
@@ -221,8 +221,8 @@ export const sendPasswordResetEmail = async (
       const sendGridOptions = {
         to: mailOptions.to,
         from: {
-          email: process.env.SENDGRID_FROM_EMAIL || "noreply@domainx.com",
-          name: "DomainX",
+          email: process.env.SENDGRID_FROM_EMAIL || "noreply@ Domainsxchange.com",
+          name: " Domainsxchange",
         },
         subject: mailOptions.subject,
         html: mailOptions.html,
@@ -292,9 +292,9 @@ export const sendPasswordChangeConfirmation = async (email, name) => {
       from:
         process.env.SENDGRID_FROM_EMAIL ||
         process.env.EMAIL_USER ||
-        "DomainX <noreply@domainx.com>",
+        " Domainsxchange <noreply@ Domainsxchange.com>",
       to: email,
-      subject: "Password Changed Successfully - DomainX",
+      subject: "Password Changed Successfully -  Domainsxchange",
       html: `
         <!DOCTYPE html>
         <html>
@@ -322,7 +322,7 @@ export const sendPasswordChangeConfirmation = async (email, name) => {
                       <h2 style="margin: 0 0 20px 0; color: #2c3e50; font-size: 24px; font-weight: 600;">Hi ${name},</h2>
                       
                       <p style="margin: 0 0 20px 0; color: #6c757d; font-size: 16px; line-height: 1.6;">
-                        Your DomainX admin account password has been successfully changed.
+                        Your  Domainsxchange admin account password has been successfully changed.
                       </p>
 
                       <div style="margin: 30px 0; padding: 20px; background-color: #d4edda; border-left: 4px solid #28a745; border-radius: 6px;">
@@ -354,7 +354,7 @@ export const sendPasswordChangeConfirmation = async (email, name) => {
                   <tr>
                     <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #dee2e6;">
                       <p style="margin: 0 0 10px 0; color: #6c757d; font-size: 14px;">
-                        © ${new Date().getFullYear()} DomainX. All rights reserved.
+                        © ${new Date().getFullYear()}  Domainsxchange. All rights reserved.
                       </p>
                       <p style="margin: 0; color: #9ca3af; font-size: 12px;">
                         This is an automated email. Please do not reply.
@@ -370,15 +370,15 @@ export const sendPasswordChangeConfirmation = async (email, name) => {
         </html>
       `,
       text: `
-        Password Changed Successfully - DomainX
+        Password Changed Successfully -  Domainsxchange
         
         Hi ${name},
         
-        Your DomainX admin account password has been successfully changed on ${new Date().toLocaleString()}.
+        Your  Domainsxchange admin account password has been successfully changed on ${new Date().toLocaleString()}.
         
         If you didn't make this change, please contact our support team immediately.
         
-        © ${new Date().getFullYear()} DomainX. All rights reserved.
+        © ${new Date().getFullYear()}  Domainsxchange. All rights reserved.
       `,
     };
 
@@ -390,8 +390,8 @@ export const sendPasswordChangeConfirmation = async (email, name) => {
       const sendGridOptions = {
         to: mailOptions.to,
         from: {
-          email: process.env.SENDGRID_FROM_EMAIL || "noreply@domainx.com",
-          name: "DomainX",
+          email: process.env.SENDGRID_FROM_EMAIL || "noreply@ Domainsxchange.com",
+          name: " Domainsxchange",
         },
         subject: mailOptions.subject,
         html: mailOptions.html,
@@ -432,7 +432,7 @@ export const sendEmail = async (to, subject, html) => {
       from:
         process.env.SENDGRID_FROM_EMAIL ||
         process.env.EMAIL_USER ||
-        "DomainX <noreply@domainx.com>",
+        " Domainsxchange <noreply@ Domainsxchange.com>",
       to: to,
       subject: subject,
       html: html,
@@ -446,8 +446,8 @@ export const sendEmail = async (to, subject, html) => {
       const sendGridOptions = {
         to: mailOptions.to,
         from: {
-          email: process.env.SENDGRID_FROM_EMAIL || "noreply@domainx.com",
-          name: "DomainX",
+          email: process.env.SENDGRID_FROM_EMAIL || "noreply@ Domainsxchange.com",
+          name: " Domainsxchange",
         },
         subject: mailOptions.subject,
         html: mailOptions.html,

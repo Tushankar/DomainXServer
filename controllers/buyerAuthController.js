@@ -37,7 +37,8 @@ export const registerBuyer = async (req, res) => {
       });
     }
 
-    const { name, email, password, phone, company } = req.body;
+    const { name, email, password, phone, company, businessId, portfolioLink } =
+      req.body;
 
     // Check if buyer already exists
     const existingBuyer = await Buyer.findOne({ email });
@@ -55,6 +56,8 @@ export const registerBuyer = async (req, res) => {
       password,
       phone,
       company,
+      businessId,
+      portfolioLink,
     });
 
     // Generate token
@@ -65,14 +68,14 @@ export const registerBuyer = async (req, res) => {
 
     // Send welcome email
     try {
-      const emailSubject = "Welcome to DomainX - Your Account is Ready!";
+      const emailSubject = "Welcome to  Domainsxchange - Your Account is Ready!";
       const emailHtml = `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Welcome to DomainX</title>
+          <title>Welcome to  Domainsxchange</title>
         </head>
         <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
           <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px;">
@@ -83,7 +86,7 @@ export const registerBuyer = async (req, res) => {
                   <!-- Header -->
                   <tr>
                     <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; text-align: center;">
-                      <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">Welcome to DomainX</h1>
+                      <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">Welcome to  Domainsxchange</h1>
                       <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px;">Domain Marketplace</p>
                     </td>
                   </tr>
@@ -96,7 +99,7 @@ export const registerBuyer = async (req, res) => {
                       }!</h2>
 
                       <p style="margin: 0 0 20px 0; color: #6c757d; font-size: 16px; line-height: 1.6;">
-                        Welcome to DomainX! Your buyer account has been created successfully and is ready to use.
+                        Welcome to  Domainsxchange! Your buyer account has been created successfully and is ready to use.
                       </p>
 
                       <div style="margin: 30px 0; padding: 20px; background-color: #d4edda; border-left: 4px solid #28a745; border-radius: 6px;">
@@ -140,7 +143,7 @@ export const registerBuyer = async (req, res) => {
                   <tr>
                     <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #dee2e6;">
                       <p style="margin: 0 0 10px 0; color: #6c757d; font-size: 14px;">
-                        © ${new Date().getFullYear()} DomainX. All rights reserved.
+                        © ${new Date().getFullYear()}  Domainsxchange. All rights reserved.
                       </p>
                       <p style="margin: 0; color: #9ca3af; font-size: 12px;">
                         This is an automated email. Please do not reply.

@@ -8,7 +8,7 @@ dotenv.config();
 
 async function checkUsers() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/domainx');
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ Domainsxchange');
 
     const buyers = await Buyer.find({});
     const resellers = await Reseller.find({});
@@ -41,7 +41,7 @@ async function checkUsers() {
 
       const testAdmin = await AdminUser.create({
         name: 'Test Admin',
-        email: 'admin@domainx.com',
+        email: 'admin@ Domainsxchange.com',
         password: 'password123',
         role: 'admin'
       });

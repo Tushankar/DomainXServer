@@ -34,7 +34,7 @@ const stepSchema = new mongoose.Schema({
 }, { _id: false });
 
 const brandingSchema = new mongoose.Schema({
-  logo: { type: String, default: 'domainX' },
+  logo: { type: String, default: ' Domainsxchange' },
   primaryColor: { type: String, default: '#3b82f6' },
   buttonColor: { type: String, default: '#9ca3af' }
 }, { _id: false });

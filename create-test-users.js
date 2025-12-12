@@ -8,16 +8,16 @@ dotenv.config();
 
 async function createTestUsers() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/domainx');
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ Domainsxchange');
 
     console.log('=== CREATING TEST USERS ===');
 
     // Check if admin already exists
-    let admin = await AdminUser.findOne({ email: 'admin@domainx.com' });
+    let admin = await AdminUser.findOne({ email: 'admin@ Domainsxchange.com' });
     if (!admin) {
       admin = await AdminUser.create({
         name: 'Super Admin',
-        email: 'admin@domainx.com',
+        email: 'admin@ Domainsxchange.com',
         password: 'admin123',
         role: 'admin',
         isActive: true

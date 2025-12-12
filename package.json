@@ -1,7 +1,7 @@
 {
-  "name": "domainx-cms-backend",
+  "name": " Domainsxchange-cms-backend",
   "version": "1.0.0",
-  "description": "Backend server for DomainX CMS with MongoDB integration",
+  "description": "Backend server for  Domainsxchange CMS with MongoDB integration",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -29,7 +29,8 @@
     "mongodb": "^6.20.0",
     "mongoose": "^8.0.3",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^7.0.7"
+    "nodemailer": "^7.0.7",
+    "stripe": "^20.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

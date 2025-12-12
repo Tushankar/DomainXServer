@@ -4,7 +4,7 @@ const contentSchema = new mongoose.Schema(
   {
     // Landing Page Content
     landing: {
-      title: { type: String, default: "DomainX World 2025: Elevate together" },
+      title: { type: String, default: " Domainsxchange World 2025: Elevate together" },
       subtitle: {
         type: String,
         default:

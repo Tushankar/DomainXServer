@@ -15,7 +15,7 @@ const blogSchema = new mongoose.Schema(
     author: {
       type: String,
       required: true,
-      default: "DomainX Team",
+      default: " Domainsxchange Team",
     },
     authorBio: {
       type: String,

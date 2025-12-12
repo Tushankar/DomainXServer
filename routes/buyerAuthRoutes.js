@@ -39,6 +39,15 @@ const registerValidation = [
     .trim()
     .isLength({ max: 100 })
     .withMessage("Company name cannot exceed 100 characters"),
+  body("businessId")
+    .optional()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage("Business ID cannot exceed 50 characters"),
+  body("portfolioLink")
+    .optional()
+    .isURL()
+    .withMessage("Please provide a valid portfolio link"),
 ];
 
 const loginValidation = [
