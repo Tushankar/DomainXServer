@@ -19,6 +19,7 @@ import domainRoutes from "./routes/domainRoutes.js";
 import purchaseRoutes from "./routes/purchaseRoutes.js";
 import dnsRoutes from "./routes/dnsRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import formSubmissionRoutes from "./routes/formSubmissionRoutes.js";
 import * as formConfigController from "./controllers/formConfigController.js";
 import errorHandler from "./middleware/errorHandler.js";
 
@@ -84,6 +85,7 @@ app.use("/api/wishlist", purchaseRoutes);
 app.use("/api/purchases", purchaseRoutes);
 app.use("/api/dns", dnsRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/form-submission", formSubmissionRoutes);
 app.use("/api", formConfigRoutes);
 
 // Public route for form config (without /api prefix for backward compatibility)

@@ -13,6 +13,7 @@ import {
   toggleUserStatus,
   approveUser,
 } from "../controllers/adminAuthController.js";
+import { getAllDomainListingsForAdmin } from "../controllers/domainListingController.js";
 import {
   authenticateAdmin,
   requireSuperAdmin,
@@ -54,5 +55,8 @@ router.put("/users/:id", updateUser);
 router.delete("/users/:id", deleteUser);
 router.patch("/users/:id/status", toggleUserStatus);
 router.patch("/users/:id/approve", approveUser);
+
+// Domain management routes (Admin only)
+router.get("/domains/listings", getAllDomainListingsForAdmin);
 
 export default router;

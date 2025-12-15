@@ -21,10 +21,10 @@ router.put("/:id", updateAnalyticsSubmission);
 
 // Admin/Private routes - require authentication
 router.use(authenticateAdmin);
-router.get("/", getAllAnalyticsSubmissions);
 router.get("/dashboard/summary", getAnalyticsSummary);
 router.get("/export/csv", exportAnalyticsToCSV);
 router.post("/recalculate-completion", recalculateCompletion);
+router.get("/", getAllAnalyticsSubmissions);
 router.get("/:id", getAnalyticsSubmissionById);
 router.delete("/:id", deleteAnalyticsSubmission);
 

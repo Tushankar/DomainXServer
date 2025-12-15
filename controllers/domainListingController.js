@@ -425,3 +425,88 @@ export const getAllActiveDomainListings = async (req, res) => {
     });
   }
 };
+
+// @desc    Get all domain listings for admin (all statuses)
+// @route   GET /api/admin/domains/listings
+// @access  Private (Admin)
+export const getAllDomainListingsForAdmin = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 12,
+      category = "all",
+      sort = "-createdAt",
+      status = "all",
+    } = req.query;
+
+    const query = {};
+
+    // Filter by category if specified
+    if (category && category !== "all" && category !== "") {
+      query.category = category;
+    }
+
+    // Filter by status if specified
+    if (status && status !== "all" && status !== "") {
+      query.status = status;
+    }
+
+    const listings = await DomainListing.find(query)
+      .populate("resellerId", "name email businessType")
+      .sort(sort)
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    const total = await DomainListing.countDocuments(query);
+
+    console.log("=== GET ALL DOMAIN LISTINGS FOR ADMIN ===");
+    console.log(
+      `Total listings: ${total}, Status filter: ${status}, Category filter: ${category}, Query:`,
+      query
+    );
+
+    res.json({
+      success: true,
+      listings: listings.map((listing) => ({
+        _id: listing._id,
+        resellerId: listing.resellerId,
+        reseller: listing.resellerId
+          ? {
+              _id: listing.resellerId._id,
+              name: listing.resellerId.name,
+              email: listing.resellerId.email,
+              businessType: listing.resellerId.businessType,
+            }
+          : null,
+        domainName: listing.domainName,
+        category: listing.category,
+        description: listing.description,
+        askingPrice: listing.askingPrice,
+        minimumOffer: listing.minimumOffer,
+        listingType: listing.listingType,
+        status: listing.status,
+        views: listing.views,
+        duration: listing.duration,
+        expiryDate: listing.expiryDate,
+        registrar: listing.registrar,
+        traffic: listing.traffic,
+        revenue: listing.revenue,
+        keywords: listing.keywords,
+        createdAt: listing.createdAt,
+        updatedAt: listing.updatedAt,
+      })),
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    console.error("Get all domain listings for admin error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
