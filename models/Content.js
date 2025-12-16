@@ -4,7 +4,10 @@ const contentSchema = new mongoose.Schema(
   {
     // Landing Page Content
     landing: {
-      title: { type: String, default: " Domainsxchange World 2025: Elevate together" },
+      title: {
+        type: String,
+        default: " Domainsxchange World 2025: Elevate together",
+      },
       subtitle: {
         type: String,
         default:
@@ -58,7 +61,8 @@ const contentSchema = new mongoose.Schema(
       },
       description: {
         type: String,
-        default: "We are a group of domainers who make our living buying and selling domains.",
+        default:
+          "We are a group of domainers who make our living buying and selling domains.",
       },
       points: {
         type: [String],
@@ -72,14 +76,24 @@ const contentSchema = new mongoose.Schema(
       },
       pointsFooter: { type: String, default: "" },
       images: {
-        main: { type: String, default: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f" },
-        small: { type: String, default: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0" },
+        main: {
+          type: String,
+          default:
+            "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
+        },
+        small: {
+          type: String,
+          default: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0",
+        },
       },
       sections: { type: mongoose.Schema.Types.Mixed, default: null },
       rating: {
         score: { type: String, default: "4.9/5" },
         reviews: { type: String, default: "★ 19,201 reviews" },
-        subtitle: { type: String, default: "Discover Our TrustScore & Customer Reviews" },
+        subtitle: {
+          type: String,
+          default: "Discover Our TrustScore & Customer Reviews",
+        },
       },
       buttonText: { type: String, default: "Start Trading Domains" },
       buttonLink: { type: String, default: "/domains" },
@@ -109,30 +123,37 @@ const contentSchema = new mongoose.Schema(
       },
       left: {
         title: { type: String, default: "Sell Domains" },
-        description: { type: String, default: "List your premium domains and connect with serious buyers." },
+        description: {
+          type: String,
+          default: "List your premium domains and connect with serious buyers.",
+        },
         buttonText: { type: String, default: "List Your Domain" },
         buttonLink: { type: String, default: "/login/reseller" },
       },
       cards: {
-        type: [{
-          image: String,
-          title: String,
-          description: String,
-          buttonText: String,
-          buttonLink: String,
-        }],
+        type: [
+          {
+            image: String,
+            title: String,
+            description: String,
+            buttonText: String,
+            buttonLink: String,
+          },
+        ],
         default: [
           {
             image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44",
             title: "Premium Listing",
-            description: "Get maximum exposure for your domain with our premium listing service.",
+            description:
+              "Get maximum exposure for your domain with our premium listing service.",
             buttonText: "Upgrade Listing",
             buttonLink: "#",
           },
           {
             image: "",
             title: "Quick Sale Service",
-            description: "Need to sell fast? Our quick sale service connects you with verified buyers within 48 hours.",
+            description:
+              "Need to sell fast? Our quick sale service connects you with verified buyers within 48 hours.",
             buttonText: "Sell Now",
             buttonLink: "#",
           },
@@ -140,9 +161,15 @@ const contentSchema = new mongoose.Schema(
       },
       bottom: {
         title: { type: String, default: "Every step to selling success" },
-        subtitle: { type: String, default: "Domain selling is just the beginning of your success story" },
+        subtitle: {
+          type: String,
+          default: "Domain selling is just the beginning of your success story",
+        },
         contentTitle: { type: String, default: "Sell a domain" },
-        contentDescription: { type: String, default: "List your domain and connect with serious buyers." },
+        contentDescription: {
+          type: String,
+          default: "List your domain and connect with serious buyers.",
+        },
         ctaText: { type: String, default: "Discover all selling options" },
         ctaLink: { type: String, default: "#" },
       },
@@ -162,21 +189,28 @@ const contentSchema = new mongoose.Schema(
       },
       left: {
         title: { type: String, default: "Domains" },
-        description: { type: String, default: "Get started with the perfect domain, which comes with free domain privacy protection forever." },
+        description: {
+          type: String,
+          default:
+            "Get started with the perfect domain, which comes with free domain privacy protection forever.",
+        },
         buttonText: { type: String, default: "Search Domains" },
         buttonLink: { type: String, default: "/domains" },
       },
       cards: {
-        type: [{
-          image: String,
-          title: String,
-          description: String,
-          buttonText: String,
-          buttonLink: String,
-        }],
+        type: [
+          {
+            image: String,
+            title: String,
+            description: String,
+            buttonText: String,
+            buttonLink: String,
+          },
+        ],
         default: [
           {
-            image: "https://images.unsplash.com/photo-1490750967868-88aa4486c946",
+            image:
+              "https://images.unsplash.com/photo-1490750967868-88aa4486c946",
             title: ".co for ₹ 1.00/1st year",
             description: "Make a name for your business. Get a .co domain.",
             buttonText: "Get .co Domain",
@@ -366,7 +400,10 @@ const contentSchema = new mongoose.Schema(
     // Trusted Partners Content
     partners: {
       title: { type: String, default: "Trusted brands trust Domainsxchange" },
-      categories: { type: [String], default: ["Featured", "Tech", "Finance", "Retail"] },
+      categories: {
+        type: [String],
+        default: ["Featured", "Tech", "Finance", "Retail"],
+      },
       logos: { type: mongoose.Schema.Types.Mixed, default: {} },
       // Page builder sections for drag-and-drop
       sections: { type: mongoose.Schema.Types.Mixed, default: null },
@@ -383,9 +420,16 @@ const contentSchema = new mongoose.Schema(
       bgImage: { type: String, default: "/images/faq-bg.webp" },
       headerTitle: { type: String, default: "Frequently asked questions" },
       headerTitleColor: { type: String, default: "#FFFFFF" },
-      subtitle: { type: String, default: "These are the most commonly asked questions about Untitled UI." },
+      subtitle: {
+        type: String,
+        default:
+          "These are the most commonly asked questions about Untitled UI.",
+      },
       subtitleColor: { type: String, default: "rgba(255, 255, 255, 0.9)" },
-      linkText: { type: String, default: "Can't find what you're looking for?" },
+      linkText: {
+        type: String,
+        default: "Can't find what you're looking for?",
+      },
       linkTextColor: { type: String, default: "rgba(255, 255, 255, 0.9)" },
       linkLabel: { type: String, default: "Chat to our friendly team!" },
       linkColor: { type: String, default: "#93C5FD" },
@@ -410,6 +454,15 @@ const contentSchema = new mongoose.Schema(
       chatButtonBg: { type: String, default: "rgba(255, 255, 255, 0.2)" },
       chatButtonHoverBg: { type: String, default: "rgba(255, 255, 255, 0.3)" },
       chatButtonBorder: { type: String, default: "rgba(255, 255, 255, 0.3)" },
+    },
+
+    // Browse Domains Content
+    browseDomains: {
+      // Page builder sections for drag-and-drop
+      sections: { type: mongoose.Schema.Types.Mixed, default: null },
+      pageStyles: {
+        bgColor: { type: String, default: "#0a0f1c" },
+      },
     },
   },
   {
